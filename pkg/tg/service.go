@@ -119,10 +119,8 @@ func (s *Service) OnStart(ctx context.Context) error {
 
 	ok, err = s.client.SetMyDefaultAdministratorRights(ctx, &bot.SetMyDefaultAdministratorRightsParams{
 		Rights: &models.ChatAdministratorRights{
-			CanDeleteMessages:  true,
 			CanRestrictMembers: true,
-			CanPostMessages:    true,
-			CanEditMessages:    true,
+			CanManageChat:      true,
 		},
 	})
 	if err != nil {
