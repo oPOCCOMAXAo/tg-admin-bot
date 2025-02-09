@@ -3,3 +3,5 @@
 .local
 __debug*
 *.log
+*.env
+.env
