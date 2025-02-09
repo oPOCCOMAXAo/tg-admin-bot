@@ -33,6 +33,10 @@ func NewDefault() *slog.Logger {
 func NewDebug() *slog.Logger {
 	return slog.New(devslog.NewHandler(os.Stdout, &devslog.Options{
 		MaxErrorStackTrace: 10,
+		HandlerOptions: &slog.HandlerOptions{
+			AddSource: true,
+			Level:     slog.LevelDebug,
+		},
 	}))
 }
 

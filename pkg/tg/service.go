@@ -5,8 +5,9 @@ import (
 	"log/slog"
 
 	"github.com/go-telegram/bot"
+	"github.com/go-telegram/bot/models"
 	"github.com/opoccomaxao/tg-admin-bot/pkg/logger"
-	"github.com/opoccomaxao/tg-admin-bot/pkg/models"
+	xmodels "github.com/opoccomaxao/tg-admin-bot/pkg/models"
 	"github.com/opoccomaxao/tg-admin-bot/pkg/tg/middleware"
 	"github.com/opoccomaxao/tg-instrumentation/router"
 	"github.com/pkg/errors"
@@ -89,6 +90,10 @@ func (s *Service) initRouter() {
 	)
 }
 
+func (s *Service) Client() *bot.Bot {
+	return s.client
+}
+
 func (s *Service) Router() *router.Router {
 	return s.router
 }
@@ -109,7 +114,23 @@ func (s *Service) OnStart(ctx context.Context) error {
 	}
 
 	if !ok {
-		return errors.Wrap(models.ErrFailed, "start webhook")
+		return errors.Wrap(xmodels.ErrFailed, "start webhook")
+	}
+
+	ok, err = s.client.SetMyDefaultAdministratorRights(ctx, &bot.SetMyDefaultAdministratorRightsParams{
+		Rights: &models.ChatAdministratorRights{
+			CanDeleteMessages:  true,
+			CanRestrictMembers: true,
+			CanPostMessages:    true,
+			CanEditMessages:    true,
+		},
+	})
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	if !ok {
+		return errors.Wrap(xmodels.ErrFailed, "set default admin rights")
 	}
 
 	return nil

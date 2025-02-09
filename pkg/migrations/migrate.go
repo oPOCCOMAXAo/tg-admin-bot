@@ -3,6 +3,7 @@ package migrations
 import (
 	"context"
 
+	"github.com/opoccomaxao/tg-admin-bot/pkg/models"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
@@ -13,7 +14,9 @@ func Migrate(
 ) error {
 	db := dbOrig.WithContext(ctx)
 
-	err := db.AutoMigrate()
+	err := db.AutoMigrate(
+		&models.ChatConfig{},
+	)
 	if err != nil {
 		return errors.WithStack(err)
 	}

@@ -2,7 +2,8 @@ package models
 
 import "errors"
 
-// global errors.
 var (
-	ErrFailed = errors.New("failed")
+	ErrAuthInvalid = errors.New("auth invalid")
+	ErrFailed      = errors.New("failed")
+	ErrNotFound    = errors.New("not found")
 )

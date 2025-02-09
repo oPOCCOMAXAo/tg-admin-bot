@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/opoccomaxao/tg-admin-bot/pkg/config"
 	"github.com/opoccomaxao/tg-admin-bot/pkg/db"
+	"github.com/opoccomaxao/tg-admin-bot/pkg/domain"
 	"github.com/opoccomaxao/tg-admin-bot/pkg/endpoints"
 	"github.com/opoccomaxao/tg-admin-bot/pkg/handlers"
 	"github.com/opoccomaxao/tg-admin-bot/pkg/logger"
@@ -20,6 +21,7 @@ func Run() error {
 		db.Module(),
 		tg.Module(),
 		server.Module(),
+		domain.Module(),
 		handlers.Invoke(),
 		endpoints.Invoke(),
 	).Run()

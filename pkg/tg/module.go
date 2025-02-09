@@ -3,6 +3,7 @@ package tg
 import (
 	"log/slog"
 
+	"github.com/go-telegram/bot"
 	"github.com/opoccomaxao/tg-instrumentation/router"
 	"go.uber.org/fx"
 )
@@ -26,6 +27,7 @@ type moduleResult struct {
 
 	Service *Service
 	Router  *router.Router
+	Client  *bot.Bot
 }
 
 func newModule(
@@ -49,6 +51,7 @@ func newModule(
 	})
 
 	res.Router = res.Service.Router()
+	res.Client = res.Service.Client()
 
 	return res, nil
 }

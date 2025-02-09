@@ -123,3 +123,6 @@ linters-settings:
       - fn # function
       - ok
       - cb # callback
+      - tx # transaction
+      - tg # telegram
+      - lc # lifecycle
