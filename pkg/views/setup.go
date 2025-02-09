@@ -25,6 +25,15 @@ func (s *Setup) getUpdateButtonRow() []bmodels.InlineKeyboardButton {
 	}
 }
 
+func (s *Setup) getApplyButtonRow() []bmodels.InlineKeyboardButton {
+	return []bmodels.InlineKeyboardButton{
+		{
+			Text:         "Застосувати",
+			CallbackData: "setup_apply",
+		},
+	}
+}
+
 func (s *Setup) getMuteLettersButtonRow() []bmodels.InlineKeyboardButton {
 	res := []bmodels.InlineKeyboardButton{
 		{},
@@ -51,6 +60,7 @@ func (s *Setup) ReplyMarkup() bmodels.ReplyMarkup {
 	res := &bmodels.InlineKeyboardMarkup{}
 	res.InlineKeyboard = append(res.InlineKeyboard, s.getUpdateButtonRow())
 	res.InlineKeyboard = append(res.InlineKeyboard, s.getMuteLettersButtonRow())
+	res.InlineKeyboard = append(res.InlineKeyboard, s.getApplyButtonRow())
 
 	return res
 }

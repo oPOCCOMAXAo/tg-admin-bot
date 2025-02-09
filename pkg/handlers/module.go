@@ -49,6 +49,13 @@ func RegisterHandlers(
 		service.SetupSet,
 	)
 
+	router.Callback("setup_apply",
+		pkgrouter.AutoAnswerCallbackQuery(),
+		middleware.RequireCallbackMessage,
+		tg.RequireCallbackFromAdmin,
+		service.SetupApply,
+	)
+
 	router.Custom(func(update *apimodels.Update) bool {
 		return update.Message != nil || update.EditedMessage != nil
 	}, service.GroupMessage)
