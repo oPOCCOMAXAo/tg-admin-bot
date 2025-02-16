@@ -22,7 +22,7 @@ func RegisterHandlers(
 	router *pkgrouter.Router,
 	service *Service,
 ) error {
-	defer tg.SetupCommands(context.Background())
+	defer router.UpdateCommandsDescription(context.Background())
 
 	router.Text("/start", service.Start).
 		WithDescription(apimodels.LCAll, apimodels.CSAllPrivateChats, "Start").
@@ -47,6 +47,13 @@ func RegisterHandlers(
 		middleware.RequireCallbackMessage,
 		tg.RequireCallbackFromAdmin,
 		service.SetupSet,
+	)
+
+	router.Callback("setup_apply",
+		pkgrouter.AutoAnswerCallbackQuery(),
+		middleware.RequireCallbackMessage,
+		tg.RequireCallbackFromAdmin,
+		service.SetupApply,
 	)
 
 	router.Custom(func(update *apimodels.Update) bool {

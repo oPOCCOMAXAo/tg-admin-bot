@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/opoccomaxao/tg-instrumentation/router"
+	"github.com/samber/lo"
 )
 
 func Telemetry(
@@ -30,7 +31,10 @@ func Telemetry(
 				slog.String("update_type", "message"),
 				slog.Int64("user_id", update.Message.From.ID),
 				slog.String("user_name", update.Message.From.Username),
-				slog.String("message_text", update.Message.Text),
+				slog.String("text", lo.CoalesceOrEmpty(
+					update.Message.Text,
+					update.Message.Caption,
+				)),
 				slog.Time("message_date", time.Unix(int64(update.Message.Date), 0)),
 			)
 		case update.CallbackQuery != nil:

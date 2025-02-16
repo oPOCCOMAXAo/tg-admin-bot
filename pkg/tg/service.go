@@ -103,7 +103,10 @@ func (s *Service) OnStart(ctx context.Context) error {
 		return nil
 	}
 
-	s.SetupCommands(ctx)
+	err := s.router.UpdateCommandsDescription(ctx)
+	if err != nil {
+		return errors.WithStack(err)
+	}
 
 	ok, err := s.client.SetWebhook(ctx, &bot.SetWebhookParams{
 		URL:         s.config.HookURL,
@@ -119,10 +122,8 @@ func (s *Service) OnStart(ctx context.Context) error {
 
 	ok, err = s.client.SetMyDefaultAdministratorRights(ctx, &bot.SetMyDefaultAdministratorRightsParams{
 		Rights: &models.ChatAdministratorRights{
-			CanDeleteMessages:  true,
 			CanRestrictMembers: true,
-			CanPostMessages:    true,
-			CanEditMessages:    true,
+			CanManageChat:      true,
 		},
 	})
 	if err != nil {

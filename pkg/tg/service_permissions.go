@@ -2,6 +2,7 @@ package tg
 
 import (
 	"context"
+	"strings"
 
 	"github.com/go-telegram/bot"
 	bmodels "github.com/go-telegram/bot/models"
@@ -15,6 +16,9 @@ var memberTypesAdmin = []bmodels.ChatMemberType{
 	bmodels.ChatMemberTypeAdministrator,
 	bmodels.ChatMemberTypeOwner,
 }
+
+// HiddenAdminNickname is a nickname of sender when admin is hidden.
+const HiddenAdminNickname = "groupanonymousbot"
 
 //nolint:cyclop
 func (s *Service) hasRequiredAdminPermissions(
@@ -57,6 +61,7 @@ func (s *Service) GetChatMember(
 type CheckUserMemberPermissionsParams struct {
 	ChatID        int64
 	UserID        int64
+	Username      string
 	RequiredTypes []bmodels.ChatMemberType
 	RequiredAdmin *bmodels.ChatMemberAdministrator
 }
@@ -69,12 +74,23 @@ func (s *Service) CheckUserMemberPermissions(
 		return errors.WithStack(models.ErrAuthInvalid)
 	}
 
-	chat, err := s.GetChatMember(ctx, &bot.GetChatMemberParams{
-		ChatID: params.ChatID,
-		UserID: params.UserID,
-	})
-	if err != nil {
-		return err
+	var (
+		chat *bmodels.ChatMember
+		err  error
+	)
+
+	if strings.ToLower(params.Username) == HiddenAdminNickname {
+		chat = &bmodels.ChatMember{
+			Type: bmodels.ChatMemberTypeAdministrator,
+		}
+	} else {
+		chat, err = s.GetChatMember(ctx, &bot.GetChatMemberParams{
+			ChatID: params.ChatID,
+			UserID: params.UserID,
+		})
+		if err != nil {
+			return err
+		}
 	}
 
 	if len(params.RequiredTypes) > 0 {

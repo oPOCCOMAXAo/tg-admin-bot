@@ -68,5 +68,13 @@ func (s *CheckService) VerifyBannedLetters(
 	_ context.Context,
 	message *bmodels.Message,
 ) (bool, error) {
-	return !s.IsTextContainsBannedLetters(message.Text), nil
+	if message.Text != "" && s.IsTextContainsBannedLetters(message.Text) {
+		return false, nil
+	}
+
+	if message.Caption != "" && s.IsTextContainsBannedLetters(message.Caption) {
+		return false, nil
+	}
+
+	return true, nil
 }

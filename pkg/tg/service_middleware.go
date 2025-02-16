@@ -15,6 +15,7 @@ func (s *Service) RequireCallbackFromAdmin(ctx *router.Context) {
 	err := s.CheckUserMemberPermissions(ctx.Context(), &CheckUserMemberPermissionsParams{
 		ChatID:        update.CallbackQuery.Message.Message.Chat.ID,
 		UserID:        update.CallbackQuery.From.ID,
+		Username:      update.CallbackQuery.From.Username,
 		RequiredTypes: memberTypesAdmin,
 	})
 	if err != nil {
@@ -36,6 +37,7 @@ func (s *Service) RequireMessageFromAdmin(ctx *router.Context) {
 	err := s.CheckUserMemberPermissions(ctx.Context(), &CheckUserMemberPermissionsParams{
 		ChatID:        update.Message.Chat.ID,
 		UserID:        update.Message.From.ID,
+		Username:      update.Message.From.Username,
 		RequiredTypes: memberTypesAdmin,
 	})
 	if err != nil {
