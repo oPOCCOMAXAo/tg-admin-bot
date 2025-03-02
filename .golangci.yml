@@ -126,3 +126,4 @@ linters-settings:
       - tx # transaction
       - tg # telegram
       - lc # lifecycle
+      - to

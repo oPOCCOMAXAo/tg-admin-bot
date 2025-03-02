@@ -22,6 +22,7 @@ func RegisterHandlers(
 	router *pkgrouter.Router,
 	service *Service,
 ) error {
+	//nolint:errcheck
 	defer router.UpdateCommandsDescription(context.Background())
 
 	router.Text("/start", service.Start).
@@ -54,6 +55,19 @@ func RegisterHandlers(
 		middleware.RequireCallbackMessage,
 		tg.RequireCallbackFromAdmin,
 		service.SetupApply,
+	)
+
+	router.Callback("delete_self_admin",
+		pkgrouter.AutoAnswerCallbackQuery(),
+		middleware.RequireCallbackMessage,
+		tg.RequireCallbackFromAdmin,
+		service.DeleteSelf,
+	)
+
+	router.Callback("delete_self",
+		pkgrouter.AutoAnswerCallbackQuery(),
+		middleware.RequireCallbackMessage,
+		service.DeleteSelf,
 	)
 
 	router.Custom(func(update *apimodels.Update) bool {

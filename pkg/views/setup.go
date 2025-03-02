@@ -12,7 +12,7 @@ import (
 type Setup struct {
 	ChatID             int64
 	MessageID          int64
-	EnabledMuteLetters bool
+	Config             *models.ChatConfig
 	CanRestrictMembers bool
 }
 
@@ -35,22 +35,38 @@ func (s *Setup) getApplyButtonRow() []bmodels.InlineKeyboardButton {
 }
 
 func (s *Setup) getMuteLettersButtonRow() []bmodels.InlineKeyboardButton {
-	res := []bmodels.InlineKeyboardButton{
-		{},
+	if s.Config == nil {
+		return nil
 	}
 
-	if s.EnabledMuteLetters {
-		res[0].Text = "Вимкнути мут літер 'ыэёъЫЭЁЪ'"
-		res[0].CallbackData = texts.QueryCommand("setup_set").
-			AddParam("id", models.RuleMuteLetters.StringID()).
-			AddParam("setup_set", "0").
-			Encode()
+	res := []bmodels.InlineKeyboardButton{}
+
+	if s.Config.EnabledMuteLetters {
+		res = append(res, btnDisableMuteLetters)
 	} else {
-		res[0].Text = "Увімкнути мут літер 'ыэёъЫЭЁЪ'"
-		res[0].CallbackData = texts.QueryCommand("setup_set").
-			AddParam("id", models.RuleMuteLetters.StringID()).
-			AddParam("setup_set", "1").
-			Encode()
+		res = append(res, btnEnableMuteLetters)
+	}
+
+	return res
+}
+
+func (s *Setup) getAntispamButtonRow() []bmodels.InlineKeyboardButton {
+	if s.Config == nil {
+		return nil
+	}
+
+	res := []bmodels.InlineKeyboardButton{}
+
+	if s.Config.EnabledAntispam {
+		res = append(res, btnDisableAntispam)
+
+		if s.Config.AntispamDebug {
+			res = append(res, btnAntispamDebugOff)
+		} else {
+			res = append(res, btnAntispamDebugOn)
+		}
+	} else {
+		res = append(res, btnEnableAntispam)
 	}
 
 	return res
@@ -60,7 +76,9 @@ func (s *Setup) ReplyMarkup() bmodels.ReplyMarkup {
 	res := &bmodels.InlineKeyboardMarkup{}
 	res.InlineKeyboard = append(res.InlineKeyboard, s.getUpdateButtonRow())
 	res.InlineKeyboard = append(res.InlineKeyboard, s.getMuteLettersButtonRow())
+	res.InlineKeyboard = append(res.InlineKeyboard, s.getAntispamButtonRow())
 	res.InlineKeyboard = append(res.InlineKeyboard, s.getApplyButtonRow())
+	res.InlineKeyboard = append(res.InlineKeyboard, []bmodels.InlineKeyboardButton{btnCloseAdmin})
 
 	return res
 }
@@ -76,9 +94,36 @@ func (s *Setup) getRequiredPermissions() []string {
 }
 
 func (s *Setup) getText() string {
+	const cmdDescPrefix = "  - "
+
 	lines := []string{
 		"<b>Налаштування поточного чату:</b>\n",
-		"Мут літер 'ыэёъЫЭЁЪ': " + OnOff(s.EnabledMuteLetters),
+	}
+
+	if s.Config == nil {
+		lines = append(lines, "<i>Налаштування не знайдені.</i>")
+	} else {
+		lines = append(lines, "> Мут літер 'ыэёъЫЭЁЪ': "+OnOff(s.Config.EnabledMuteLetters))
+		lines = append(lines, "<i>"+texts.JoinListLinesWithPrefix([]string{
+			"при наявності цих літер в повідомленні видає мут на 5 хвилин",
+		}, cmdDescPrefix)+"</i>")
+
+		lines = append(lines, "")
+
+		lines = append(lines, "> Антиспам: "+OnOff(s.Config.EnabledAntispam))
+		lines = append(lines, "<i>"+texts.JoinListLinesWithPrefix([]string{
+			"рахує рейтинг і видає мут за кількома правилами",
+		}, cmdDescPrefix)+"</i>")
+
+		if s.Config.EnabledAntispam {
+			lines = append(lines, ">> debug: "+OnOff(s.Config.AntispamDebug))
+
+			lines = append(lines, "<i>"+texts.JoinListLinesWithPrefix([]string{
+				"виводить рейтинг повідомлень у debug-повідомленні",
+				"автовидаляє ці повідомлення через 30 секунд",
+				"дає можливість кожному видалити debug-повідомлення",
+			}, cmdDescPrefix)+"</i>")
+		}
 	}
 
 	lines = append(lines, "\nАдміністратори чату можуть змінити ці налаштування кнопками нижче.")

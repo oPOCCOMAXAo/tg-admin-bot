@@ -8,7 +8,7 @@ import (
 func Module() fx.Option {
 	return fx.Module("domain",
 		fx.Provide(repo.NewRepo, fx.Private),
-		fx.Provide(NewCheckService, fx.Private),
+		fx.Provide(NewCalculatorService, fx.Private),
 		fx.Provide(NewService),
 	)
 }

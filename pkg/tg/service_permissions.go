@@ -2,7 +2,9 @@ package tg
 
 import (
 	"context"
+	"log/slog"
 	"strings"
+	"time"
 
 	"github.com/go-telegram/bot"
 	bmodels "github.com/go-telegram/bot/models"
@@ -103,6 +105,39 @@ func (s *Service) CheckUserMemberPermissions(
 		if !s.hasRequiredAdminPermissions(params.RequiredAdmin, chat) {
 			return errors.WithStack(models.ErrAuthInvalid)
 		}
+	}
+
+	return nil
+}
+
+type MuteParams struct {
+	ChatID       int64
+	UserID       int64
+	MuteDuration time.Duration
+}
+
+func (s *Service) MuteUser(
+	ctx context.Context,
+	params *MuteParams,
+) error {
+	_, err := s.client.RestrictChatMember(ctx, &bot.RestrictChatMemberParams{
+		ChatID:      params.ChatID,
+		UserID:      params.UserID,
+		UntilDate:   int(time.Now().Add(params.MuteDuration).Unix()),
+		Permissions: &bmodels.ChatPermissions{},
+	})
+	if err != nil {
+		if errors.Is(err, bot.ErrorBadRequest) {
+			s.logger.ErrorContext(ctx, "MuteUser",
+				slog.Int64("chat_id", params.ChatID),
+				slog.Int64("user_id", params.UserID),
+				slog.Any("error", err),
+			)
+
+			return nil
+		}
+
+		return errors.WithStack(err)
 	}
 
 	return nil

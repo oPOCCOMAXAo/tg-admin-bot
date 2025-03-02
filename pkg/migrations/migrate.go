@@ -16,6 +16,8 @@ func Migrate(
 
 	err := db.AutoMigrate(
 		&models.ChatConfig{},
+		&models.MessageInfo{},
+		&models.MessageDelete{},
 	)
 	if err != nil {
 		return errors.WithStack(err)

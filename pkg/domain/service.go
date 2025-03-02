@@ -2,30 +2,45 @@ package domain
 
 import (
 	"context"
+	"log/slog"
+	"time"
 
 	"github.com/opoccomaxao/tg-admin-bot/pkg/domain/repo"
+	"github.com/opoccomaxao/tg-admin-bot/pkg/models"
 	"github.com/opoccomaxao/tg-admin-bot/pkg/tg"
 	"go.uber.org/fx"
 )
 
 type Service struct {
-	repo  *repo.Repo
-	check *CheckService
-	cache *RulesCache
-	tg    *tg.Service
+	repo       *repo.Repo
+	calculator *CalculatorService
+	cache      *RuntimeCache
+	tg         *tg.Service
+	logger     *slog.Logger
+
+	processChan chan struct{}
+	deleteChan  chan struct{}
+
+	penalties []*models.AntispamPenalty
 }
 
 func NewService(
 	lc fx.Lifecycle,
 	repo *repo.Repo,
-	check *CheckService,
+	check *CalculatorService,
 	tg *tg.Service,
+	logger *slog.Logger,
 ) *Service {
 	res := &Service{
-		repo:  repo,
-		check: check,
-		tg:    tg,
-		cache: NewRulesCache(),
+		repo:       repo,
+		calculator: check,
+		tg:         tg,
+		cache:      NewRuntimeCache(),
+		logger:     logger.WithGroup("domain"),
+
+		processChan: make(chan struct{}, 1),
+		deleteChan:  make(chan struct{}, 1),
+		penalties:   GetAntispamPenalties(),
 	}
 
 	lc.Append(fx.Hook{
@@ -45,13 +60,15 @@ func (s *Service) OnStart(
 	}
 
 	for _, config := range allConfigs {
-		list := config.RulesList()
-		if list.IsEmpty() {
-			continue
-		}
-
-		s.cache.SetRules(config.TgID, list)
+		s.cache.SetFromChatConfig(config.TgID, config)
 	}
 
+	go s.serveProcess() //nolint:contextcheck
+	go s.serveDelete()  //nolint:contextcheck
+
 	return nil
+}
+
+func (s *Service) Now() int64 {
+	return time.Now().Unix()
 }

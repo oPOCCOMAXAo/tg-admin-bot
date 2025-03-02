@@ -50,7 +50,7 @@ func (s *Service) fillSetupView(
 		return errors.WithStack(err)
 	}
 
-	view.EnabledMuteLetters = cfg.EnabledMuteLetters
+	view.Config = cfg
 
 	if chat.Administrator != nil {
 		view.CanRestrictMembers = chat.Administrator.CanRestrictMembers

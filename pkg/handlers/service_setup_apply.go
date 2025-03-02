@@ -8,7 +8,7 @@ import (
 func (s *Service) SetupApply(ctx *router.Context) {
 	update := ctx.Update()
 
-	err := s.domain.CacheChatRules(
+	err := s.domain.CacheChatRuntimeConfig(
 		ctx.Context(),
 		update.CallbackQuery.Message.Message.Chat.ID,
 	)

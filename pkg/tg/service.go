@@ -34,7 +34,7 @@ func New(
 ) (*Service, error) {
 	res := &Service{
 		config: config,
-		logger: logger,
+		logger: logger.WithGroup("tg"),
 	}
 
 	err := res.initClient()

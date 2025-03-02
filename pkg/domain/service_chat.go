@@ -14,17 +14,17 @@ func (s *Service) GetOrCreateChatByTgID(
 	return s.repo.GetOrCreateChatByTgID(ctx, tgID)
 }
 
-func (s *Service) UpdateChatRule(
+func (s *Service) UpdateChatConfigInt(
 	ctx context.Context,
 	tgID int64,
-	rule models.Rule,
-	enabled bool,
+	rule models.ConfigID,
+	value int64,
 ) error {
 	//nolint:wrapcheck
-	return s.repo.UpdateChatRule(ctx, tgID, rule, enabled)
+	return s.repo.UpdateChatConfigInt(ctx, tgID, rule, value)
 }
 
-func (s *Service) CacheChatRules(
+func (s *Service) CacheChatRuntimeConfig(
 	ctx context.Context,
 	tgID int64,
 ) error {
@@ -34,7 +34,7 @@ func (s *Service) CacheChatRules(
 		return err
 	}
 
-	s.cache.SetRules(chat.TgID, chat.RulesList())
+	s.cache.SetFromChatConfig(chat.TgID, chat)
 
 	return nil
 }

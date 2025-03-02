@@ -53,21 +53,21 @@ func (r *Repo) GetOrCreateChatByTgID(
 	return &res, nil
 }
 
-func (r *Repo) UpdateChatRule(
+func (r *Repo) UpdateChatConfigInt(
 	ctx context.Context,
-	tgID int64,
-	rule models.Rule,
-	enabled bool,
+	tgChatID int64,
+	cfgID models.ConfigID,
+	value int64,
 ) error {
-	column := models.ChatConfig{}.RuleColumn(rule)
-	if column == "" {
+	column := r.chatConfig[cfgID]
+	if column.Name == "" {
 		return nil
 	}
 
 	err := r.db.WithContext(ctx).
 		Model(&models.ChatConfig{}).
-		Where("tg_id = ?", tgID).
-		UpdateColumn(column, enabled).
+		Where("tg_id = ?", tgChatID).
+		UpdateColumn(column.Name, column.ValueInt(value)).
 		Error
 	if err != nil {
 		return errors.WithStack(err)
