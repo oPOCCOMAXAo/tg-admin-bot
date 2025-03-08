@@ -56,5 +56,13 @@ func Telemetry(
 		logger.InfoContext(ctx.Context(), "request", args...)
 
 		ctx.Next()
+
+		if errs := ctx.Errors(); len(errs) > 0 {
+			for _, err := range errs {
+				args = append(args, slog.Any("error", err))
+			}
+
+			logger.ErrorContext(ctx.Context(), "request", args...)
+		}
 	}
 }

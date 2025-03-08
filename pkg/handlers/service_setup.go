@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/go-telegram/bot"
+	"github.com/go-telegram/bot/models"
 	"github.com/opoccomaxao/tg-admin-bot/pkg/views"
 	"github.com/opoccomaxao/tg-instrumentation/router"
 	"github.com/pkg/errors"
@@ -9,6 +10,12 @@ import (
 
 func (s *Service) Setup(ctx *router.Context) {
 	update := ctx.Update()
+
+	if update.Message.Chat.Type == models.ChatTypePrivate {
+		ctx.LogError2(ctx.RespondPrivateMessageText("Ця команда доступна тільки в групах"))
+
+		return
+	}
 
 	view := views.Setup{
 		ChatID:    update.Message.Chat.ID,
@@ -22,12 +29,7 @@ func (s *Service) Setup(ctx *router.Context) {
 		return
 	}
 
-	_, err = ctx.SendMessage(view.SendMessageParams())
-	if err != nil {
-		ctx.Error(err)
-
-		return
-	}
+	ctx.LogError2(ctx.SendMessage(view.SendMessageParams()))
 }
 
 func (s *Service) fillSetupView(

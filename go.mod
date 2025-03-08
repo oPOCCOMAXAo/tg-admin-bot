@@ -6,7 +6,7 @@ require (
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/go-telegram/bot v1.13.3
 	github.com/golang-cz/devslog v0.0.11
-	github.com/opoccomaxao/tg-instrumentation v0.0.0-20250302182753-7b7f7e5170ca
+	github.com/opoccomaxao/tg-instrumentation v0.0.0-20250308230116-a5f4b8545aa4
 	github.com/orandin/slog-gorm v1.4.0
 	github.com/pkg/errors v0.9.1
 	github.com/samber/lo v1.49.1

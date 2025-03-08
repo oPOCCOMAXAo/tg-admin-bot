@@ -12,8 +12,8 @@ github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD
 github.com/jinzhu/inflection v1.0.0/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=
 github.com/jinzhu/now v1.1.5 h1:/o9tlHleP7gOFmsnYNz3RGnqzefHA47wQpKrrdTIwXQ=
 github.com/jinzhu/now v1.1.5/go.mod h1:d3SSVoowX0Lcu0IBviAWJpolVfI5UJVZZ7cO71lE/z8=
-github.com/opoccomaxao/tg-instrumentation v0.0.0-20250302182753-7b7f7e5170ca h1:Z0AxtXWR2cnMxEccgKVf3jsYP/yHRn6/E9MVcoIO7XA=
-github.com/opoccomaxao/tg-instrumentation v0.0.0-20250302182753-7b7f7e5170ca/go.mod h1:WGXXBJd6WFTdLubFbsIYgmO3sZqsnnvG8+sI1+Zg/mw=
+github.com/opoccomaxao/tg-instrumentation v0.0.0-20250308230116-a5f4b8545aa4 h1:ja2hEnDwDnGlrGYJzA+lqoJX/r/agpX7pbFpopYrFVg=
+github.com/opoccomaxao/tg-instrumentation v0.0.0-20250308230116-a5f4b8545aa4/go.mod h1:WGXXBJd6WFTdLubFbsIYgmO3sZqsnnvG8+sI1+Zg/mw=
 github.com/orandin/slog-gorm v1.4.0 h1:FgA8hJufF9/jeNSYoEXmHPPBwET2gwlF3B85JdpsTUU=
 github.com/orandin/slog-gorm v1.4.0/go.mod h1:MoZ51+b7xE9lwGNPYEhxcUtRNrYzjdcKvA8QXQQGEPA=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=

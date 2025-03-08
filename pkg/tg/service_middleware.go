@@ -1,6 +1,7 @@
 package tg
 
 import (
+	"github.com/go-telegram/bot/models"
 	"github.com/opoccomaxao/tg-instrumentation/router"
 )
 
@@ -10,6 +11,16 @@ func (s *Service) RequireCallbackFromAdmin(ctx *router.Context) {
 		ctx.Abort()
 
 		return
+	}
+
+	switch update.CallbackQuery.Message.Message.Chat.Type {
+	case models.ChatTypePrivate:
+		// always valid
+		return
+	case models.ChatTypeChannel,
+		models.ChatTypeSupergroup,
+		models.ChatTypeGroup:
+		// require check
 	}
 
 	err := s.CheckUserMemberPermissions(ctx.Context(), &CheckUserMemberPermissionsParams{
@@ -32,6 +43,16 @@ func (s *Service) RequireMessageFromAdmin(ctx *router.Context) {
 		ctx.Abort()
 
 		return
+	}
+
+	switch update.Message.Chat.Type {
+	case models.ChatTypePrivate:
+		// always valid
+		return
+	case models.ChatTypeChannel,
+		models.ChatTypeSupergroup,
+		models.ChatTypeGroup:
+		// require check
 	}
 
 	err := s.CheckUserMemberPermissions(ctx.Context(), &CheckUserMemberPermissionsParams{

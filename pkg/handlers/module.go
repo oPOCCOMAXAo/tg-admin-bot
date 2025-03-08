@@ -29,6 +29,10 @@ func RegisterHandlers(
 		WithDescription(apimodels.LCAll, apimodels.CSAllPrivateChats, "Start").
 		WithDescription(apimodels.LCUk, apimodels.CSAllPrivateChats, "Почати роботу")
 
+	router.Text("/help", service.Help).
+		WithDescription(apimodels.LCAll, apimodels.CSAllPrivateChats, "Help").
+		WithDescription(apimodels.LCUk, apimodels.CSAllPrivateChats, "Довідка")
+
 	router.Text("/setup",
 		tg.RequireMessageFromAdmin,
 		service.Setup,
