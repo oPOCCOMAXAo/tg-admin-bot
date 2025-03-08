@@ -18,8 +18,9 @@ type Service struct {
 	tg         *tg.Service
 	logger     *slog.Logger
 
-	processChan chan struct{}
-	deleteChan  chan struct{}
+	processChan  chan struct{}
+	deleteChan   chan struct{}
+	restrictChan chan struct{}
 
 	penalties []*models.AntispamPenalty
 }
@@ -38,9 +39,10 @@ func NewService(
 		cache:      NewRuntimeCache(),
 		logger:     logger.WithGroup("domain"),
 
-		processChan: make(chan struct{}, 1),
-		deleteChan:  make(chan struct{}, 1),
-		penalties:   GetAntispamPenalties(),
+		processChan:  make(chan struct{}, 1),
+		deleteChan:   make(chan struct{}, 1),
+		restrictChan: make(chan struct{}, 1),
+		penalties:    GetAntispamPenalties(),
 	}
 
 	lc.Append(fx.Hook{
@@ -63,8 +65,9 @@ func (s *Service) OnStart(
 		s.cache.SetFromChatConfig(config.TgID, config)
 	}
 
-	go s.serveProcess() //nolint:contextcheck
-	go s.serveDelete()  //nolint:contextcheck
+	go s.serveProcess()     //nolint:contextcheck
+	go s.serveDelete()      //nolint:contextcheck
+	go s.serveRestriction() //nolint:contextcheck
 
 	return nil
 }

@@ -142,3 +142,58 @@ func (s *Service) MuteUser(
 
 	return nil
 }
+
+type BanChatParams struct {
+	ChatID       int64
+	SenderChatID int64
+}
+
+func (s *Service) BanSenderChat(
+	ctx context.Context,
+	params *BanChatParams,
+) error {
+	_, err := s.client.BanChatSenderChat(ctx, &bot.BanChatSenderChatParams{
+		ChatID:       params.ChatID,
+		SenderChatID: int(params.SenderChatID),
+	})
+	if err != nil {
+		if errors.Is(err, bot.ErrorBadRequest) {
+			s.logger.ErrorContext(ctx, "BanSenderChat",
+				slog.Int64("chat_id", params.ChatID),
+				slog.Int64("sender_chat_id", params.SenderChatID),
+				slog.Any("error", err),
+			)
+
+			return nil
+		}
+
+		return errors.WithStack(err)
+	}
+
+	return nil
+}
+
+func (s *Service) UnbanSenderChat(
+	ctx context.Context,
+	params *BanChatParams,
+) error {
+	_, err := s.client.UnbanChatSenderChat(ctx, &bot.UnbanChatSenderChatParams{
+		ChatID:       params.ChatID,
+		SenderChatID: int(params.SenderChatID),
+	})
+	if err != nil {
+		if errors.Is(err, bot.ErrorBadRequest) {
+			s.logger.ErrorContext(ctx, "UnbanSenderChat",
+				slog.Int64("chat_id", params.ChatID),
+				slog.Int64("sender_chat_id", params.SenderChatID),
+				slog.Any("error", err),
+			)
+
+			return nil
+		}
+
+		return errors.WithStack(err)
+	}
+
+	return nil
+}

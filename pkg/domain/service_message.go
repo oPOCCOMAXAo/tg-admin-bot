@@ -23,12 +23,19 @@ func (s *Service) HandleMessage(
 	}
 
 	info := models.MessageInfo{
-		Time:        int64(update.Message.Date),
-		ChatID:      chatID,
-		MessageID:   int64(update.Message.ID),
-		UserID:      update.Message.From.ID,
-		IsProcessed: false,
-		Score:       0,
+		Time:         int64(update.Message.Date),
+		ChatID:       chatID,
+		MessageID:    int64(update.Message.ID),
+		UserID:       0,
+		SenderChatID: 0,
+		IsProcessed:  false,
+		Score:        0,
+	}
+
+	if update.Message.SenderChat != nil {
+		info.SenderChatID = update.Message.SenderChat.ID
+	} else {
+		info.UserID = update.Message.From.ID
 	}
 
 	err := s.calculator.CalculateIntoInfo(ctx, update.Message, &info, cfg)

@@ -50,7 +50,7 @@ func (r *Repo) GetFirstMessageDeleteAny(
 	var res models.MessageDelete
 
 	err := r.db.WithContext(ctx).
-		Order("execute_at").
+		Order("execute_at ASC").
 		First(&res).
 		Error
 	if err != nil {
@@ -64,13 +64,12 @@ func (r *Repo) GetFirstMessageDeleteAny(
 	return &res, nil
 }
 
-func (r *Repo) DeleteMessageDelete(
+func (r *Repo) DeleteMessageDeleteByID(
 	ctx context.Context,
-	value *models.MessageDelete,
+	id int64,
 ) error {
 	err := r.db.WithContext(ctx).
-		Where("id = ?", value.ID).
-		Delete(&models.MessageDelete{}).
+		Delete(&models.MessageDelete{ID: id}).
 		Error
 	if err != nil {
 		return errors.WithStack(err)

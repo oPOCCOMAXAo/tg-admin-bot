@@ -5,7 +5,6 @@ import (
 	"errors"
 	"log/slog"
 	"strconv"
-	"time"
 
 	"github.com/opoccomaxao/tg-admin-bot/pkg/models"
 	"github.com/opoccomaxao/tg-admin-bot/pkg/tg"
@@ -13,9 +12,7 @@ import (
 )
 
 const (
-	MuteRuLettersDuration = 5 * time.Minute
-
-	DebugMessageTTLSeconds = 30
+	MuteRuLettersDurationSeconds = 5 * 60
 )
 
 func (s *Service) wakeupProcess() {
@@ -76,6 +73,7 @@ func (s *Service) processNextMessage(
 		slog.Int64("id", info.ID),
 		slog.Int64("chat_id", info.ChatID),
 		slog.Int64("user_id", info.UserID),
+		slog.Int64("sender_chat_id", info.SenderChatID),
 		slog.Int64("score", int64(info.Score)),
 	)
 
@@ -134,13 +132,15 @@ func (s *Service) processRuLetters(
 		return err
 	}
 
-	err = s.tg.MuteUser(ctx, &tg.MuteParams{
+	err = s.ScheduleRestriction(ctx, &models.Restriction{
+		ExecuteAt:    s.Now(),
 		ChatID:       info.ChatID,
 		UserID:       info.UserID,
-		MuteDuration: MuteRuLettersDuration,
+		SenderChatID: info.SenderChatID,
+		IsMute:       true,
+		Duration:     MuteRuLettersDurationSeconds,
 	})
 	if err != nil {
-		//nolint:wrapcheck
 		return err
 	}
 
@@ -166,9 +166,9 @@ func (s *Service) processAntispam(
 	info.Score = CalculateScore(info)
 
 	var (
-		banDuration  time.Duration
-		warnRequired bool
-		debugData    [][]string
+		banDurationSeconds int64
+		warnRequired       bool
+		debugData          [][]string
 	)
 
 	if cfg.Debug {
@@ -191,7 +191,7 @@ func (s *Service) processAntispam(
 		score += int64(info.Score)
 
 		if score >= penalty.MaxScore {
-			banDuration = max(banDuration, penalty.PenaltyTime)
+			banDurationSeconds = max(banDurationSeconds, penalty.PenaltyTimeSeconds)
 		}
 
 		if score >= penalty.MaxScore/2 {
@@ -206,14 +206,16 @@ func (s *Service) processAntispam(
 		}
 	}
 
-	if banDuration > 0 {
-		err := s.tg.MuteUser(ctx, &tg.MuteParams{
+	if banDurationSeconds > 0 && !info.IsAnonymousAdmin() {
+		err := s.ScheduleRestriction(ctx, &models.Restriction{
+			ExecuteAt:    s.Now(),
 			ChatID:       info.ChatID,
 			UserID:       info.UserID,
-			MuteDuration: banDuration,
+			SenderChatID: info.SenderChatID,
+			IsMute:       true,
+			Duration:     banDurationSeconds,
 		})
 		if err != nil {
-			//nolint:wrapcheck
 			return err
 		}
 	}
@@ -222,7 +224,7 @@ func (s *Service) processAntispam(
 		err := s.tg.ReactMessage(ctx, &tg.ReactParams{
 			ChatID:        info.ChatID,
 			MessageID:     info.MessageID,
-			ReactionEmoji: lo.Ternary(banDuration > 0, tg.ReactionSwearing, tg.ReactionSee),
+			ReactionEmoji: lo.Ternary(banDurationSeconds > 0, tg.ReactionSwearing, tg.ReactionSee),
 		})
 		if err != nil {
 			//nolint:wrapcheck
@@ -231,30 +233,16 @@ func (s *Service) processAntispam(
 	}
 
 	if cfg.Debug {
-		res, err := s.tg.ReplyDebugOrNil(ctx, &tg.ReplyDebugParams{
-			ChatID:           info.ChatID,
-			ReplyToMessageID: info.MessageID,
-			Data:             debugData,
+		err := s.ReplyDebug(ctx, &Params{
+			ReplyDebugParams: tg.ReplyDebugParams{
+				ChatID:           info.ChatID,
+				ReplyToMessageID: info.MessageID,
+				Data:             debugData,
+			},
+			DeleteAfterSeconds: DebugMessageDefaultTTLSeconds,
 		})
-		if err != nil && !errors.Is(err, models.ErrNothingChanged) {
-			s.logger.ErrorContext(ctx, "processAntispam",
-				slog.Int64("id", info.ID),
-				slog.Any("error", err),
-			)
-		}
-
-		if res != nil {
-			err = s.ScheduleDelete(ctx, &models.MessageDelete{
-				ChatID:    res.Chat.ID,
-				MessageID: int64(res.ID),
-				ExecuteAt: s.Now() + DebugMessageTTLSeconds,
-			})
-			if err != nil {
-				s.logger.ErrorContext(ctx, "processAntispam",
-					slog.Int64("id", info.ID),
-					slog.Any("error", err),
-				)
-			}
+		if err != nil {
+			return err
 		}
 	}
 

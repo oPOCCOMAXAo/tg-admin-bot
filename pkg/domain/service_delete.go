@@ -96,7 +96,7 @@ func (s *Service) processNextDelete(
 		return DeleteRetryInterval
 	}
 
-	err = s.repo.DeleteMessageDelete(ctx, msg)
+	err = s.repo.DeleteMessageDeleteByID(ctx, msg.ID)
 	if err != nil {
 		s.logger.Error("processNextDelete",
 			slog.Int64("id", msg.ID),

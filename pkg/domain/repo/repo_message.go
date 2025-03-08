@@ -69,6 +69,7 @@ func (r *Repo) GetMessageInfoPrevious(
 	err := r.db.WithContext(ctx).
 		Model(&models.MessageInfo{}).
 		Where("user_id = ?", value.UserID).
+		Where("sender_chat_id = ?", value.SenderChatID).
 		Where("time < ?", value.Time).
 		Where("id != ?", value.ID).
 		Order("time DESC").
@@ -98,6 +99,7 @@ func (r *Repo) GetMessagePrevScore(
 		Select("SUM(score) AS score").
 		Table("message_info").
 		Where("user_id = ?", value.UserID).
+		Where("sender_chat_id = ?", value.SenderChatID).
 		Where("time >= ?", timeFrom).
 		Where("time <= ?", timeTo).
 		Where("id != ?", value.ID).

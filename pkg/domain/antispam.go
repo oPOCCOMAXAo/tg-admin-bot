@@ -60,22 +60,22 @@ func CalculateScore(
 func GetAntispamPenalties() []*models.AntispamPenalty {
 	return []*models.AntispamPenalty{
 		{
-			Name:          "30s",
-			CheckInterval: 30 * time.Second,
-			MaxScore:      25,
-			PenaltyTime:   5 * time.Minute,
+			Name:               "30s",
+			CheckInterval:      30 * time.Second,
+			MaxScore:           25,
+			PenaltyTimeSeconds: 5 * 60,
 		},
 		{
-			Name:          "1h",
-			CheckInterval: 1 * time.Hour,
-			MaxScore:      500,
-			PenaltyTime:   1 * time.Hour,
+			Name:               "1h",
+			CheckInterval:      1 * time.Hour,
+			MaxScore:           500,
+			PenaltyTimeSeconds: 1 * 60 * 60,
 		},
 		{
-			Name:          "24h",
-			CheckInterval: 24 * time.Hour,
-			MaxScore:      1000,
-			PenaltyTime:   24 * time.Hour,
+			Name:               "24h",
+			CheckInterval:      24 * time.Hour,
+			MaxScore:           1000,
+			PenaltyTimeSeconds: 24 * 60 * 60,
 		},
 	}
 }

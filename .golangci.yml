@@ -127,3 +127,4 @@ linters-settings:
       - tg # telegram
       - lc # lifecycle
       - to
+      - db
