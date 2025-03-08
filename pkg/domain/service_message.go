@@ -28,6 +28,7 @@ func (s *Service) HandleMessage(
 		MessageID:    int64(update.Message.ID),
 		UserID:       0,
 		SenderChatID: 0,
+		GroupID:      update.Message.MediaGroupID,
 		IsProcessed:  false,
 		Score:        0,
 	}

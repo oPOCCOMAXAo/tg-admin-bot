@@ -28,6 +28,7 @@ func Migrate(
 		db.Migrator(),
 		&models.MessageInfo{},
 		"search_idx",
+		"search_idx_v2",
 	)
 	if err != nil {
 		return err

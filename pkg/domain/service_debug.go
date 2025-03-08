@@ -23,7 +23,7 @@ func (s *Service) ReplyDebug(
 	msg, err := s.tg.ReplyDebugOrNil(ctx, &params.ReplyDebugParams)
 	if err != nil && !errors.Is(err, models.ErrNothingChanged) {
 		s.logger.ErrorContext(ctx, "ReplyDebug",
-			slog.Int64("message_id", int64(msg.ID)),
+			slog.Int64("message_id", params.ReplyToMessageID),
 			slog.Int64("chat_id", params.ChatID),
 			slog.Any("error", err),
 		)

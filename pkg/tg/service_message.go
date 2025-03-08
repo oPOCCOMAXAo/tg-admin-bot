@@ -35,6 +35,16 @@ func (s *Service) ReactMessage(
 		},
 	})
 	if err != nil {
+		if errors.Is(err, bot.ErrorBadRequest) {
+			s.logger.ErrorContext(ctx, "ReactMessage",
+				slog.Int64("chat_id", params.ChatID),
+				slog.Int64("message_id", params.MessageID),
+				slog.Any("error", err),
+			)
+
+			return nil
+		}
+
 		return errors.WithStack(err)
 	}
 

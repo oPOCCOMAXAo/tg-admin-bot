@@ -160,7 +160,10 @@ func (s *Service) processAntispam(
 	}
 
 	if prev != nil {
-		info.IsFast = info.Time-prev.Time < 5
+		info.IsGroupFirst = info.GroupID != prev.GroupID
+		if info.IsGroupFirst {
+			info.IsFast = info.Time-prev.Time < 5
+		}
 	}
 
 	info.Score = CalculateScore(info)

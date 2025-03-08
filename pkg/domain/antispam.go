@@ -43,6 +43,11 @@ func CalculateScore(
 	info *models.MessageInfo,
 ) uint16 {
 	score := Score(ScoreBase)
+
+	if !info.IsGroupFirst {
+		return score.UInt16()
+	}
+
 	score.AddIf(info.HasCaps, ScoreCaps)
 	score.AddIf(info.HasShort, ScoreShort)
 	score.AddIf(info.HasLong, ScoreLong)

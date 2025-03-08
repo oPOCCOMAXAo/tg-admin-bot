@@ -64,13 +64,18 @@ func (r *Repo) GetMessageInfoPrevious(
 	ctx context.Context,
 	value *models.MessageInfo,
 ) (*models.MessageInfo, error) {
+	const maxTimeDiff = 60
+
 	var res models.MessageInfo
 
 	err := r.db.WithContext(ctx).
 		Model(&models.MessageInfo{}).
+		Where("time <= ?", value.Time).
+		Where("time >= ?", value.Time-maxTimeDiff).
+		Where("chat_id = ?", value.ChatID).
+		Where("message_id < ?", value.MessageID).
 		Where("user_id = ?", value.UserID).
 		Where("sender_chat_id = ?", value.SenderChatID).
-		Where("time < ?", value.Time).
 		Where("id != ?", value.ID).
 		Order("time DESC").
 		First(&res).
